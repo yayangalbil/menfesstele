@@ -3,6 +3,7 @@ import re
 from telethon import events
 from core import db
 from core.executor import execute_command
+from core.topics import parse_chat_id
 
 WTB_GROUP = os.environ["WTB_GROUP"]
 COMMAND_RE = re.compile(r"^\s*r([1-4])\s*$", re.IGNORECASE)
@@ -21,8 +22,13 @@ async def run_command_listener(berline_client, executor_clients):
     berline_client: Telethon client logged in sebagai Berline, listen di grup WTB!.
     executor_clients: dict nama_akun -> TelegramClient (Geya, Shazald, Bear, Abillo, Berline).
     """
+    # Wajib panggil get_dialogs() dulu biar Telethon bisa resolve WTB_GROUP
+    # kalau dikasih dalam bentuk ID mentah (bukan username) - sama kaya
+    # masalah yang kejadian di topics.py sebelumnya.
+    await berline_client.get_dialogs()
+    wtb_id = parse_chat_id(WTB_GROUP)
 
-    @berline_client.on(events.NewMessage(chats=WTB_GROUP))
+    @berline_client.on(events.NewMessage(chats=wtb_id))
     async def handler(event):
         if not event.is_reply:
             return
