@@ -1,7 +1,7 @@
 import os
 from telethon import events
 from core.keywords import match_category
-from core.topics import fetch_topic_map, SPECIAL_TOPIC
+from core.topics import fetch_topic_map, parse_chat_id, SPECIAL_TOPIC
 from core import db
 
 WTB_GROUP = os.environ["WTB_GROUP"]
@@ -13,7 +13,7 @@ MONEY_BASE = os.environ.get("MONEY_BASE", "moneyfess").lower().lstrip("@")
 async def run_monitor(client):
     """client = Telethon client logged in as Amela."""
     topic_map = await fetch_topic_map(client, WTB_GROUP)
-    wtb_entity = await client.get_entity(WTB_GROUP)
+    wtb_entity = await client.get_entity(parse_chat_id(WTB_GROUP))
 
     for base in SOURCE_BASES:
         try:
